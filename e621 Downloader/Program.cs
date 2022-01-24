@@ -18,13 +18,21 @@ namespace e621Downloader
         public static WebClient client = new WebClient();
         public static string path = File.ReadLines(string.Concat(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "\\config.txt")).First<string>();
 
-        public static void Main()
+        public static void Main(string[] args)
         {
-            Console.Title = "E621 Bulk Downloader";
-            Console.WriteLine("Please input your search query! See https://e621.net/help/show/api#posts_list for help!");
-            Console.WriteLine("Example: limit=10&tags=cute+dragon");
-            Console.Write("Query: ");
-            query = Console.ReadLine();
+            if (args.Length != 0)
+            {
+                query = string.Concat("limit=", args[0], "&tags=", args[1]);
+            }
+
+            if (query == null)
+            {
+                Console.Title = "E621 Bulk Downloader";
+                Console.WriteLine("Please input your search query! See https://e621.net/help/show/api#posts_list for help!");
+                Console.WriteLine("Example: limit=10&tags=cute+dragon");
+                Console.Write("Query: ");
+                query = Console.ReadLine();
+            }
 
             if (query.Contains("cub"))
             {
@@ -72,7 +80,7 @@ namespace e621Downloader
                 return;
             }
             Console.WriteLine("");
-            Main();
+            Main(null);
         }
     }
 }
