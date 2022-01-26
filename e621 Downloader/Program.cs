@@ -16,10 +16,25 @@ namespace e621Downloader
         public static float downloadedCount;
 
         public static WebClient client = new WebClient();
-        public static string path = File.ReadLines(string.Concat(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "\\config.txt")).First<string>();
+
+        public static string path;
 
         public static void Main(string[] args)
         {
+            string pathToConf = string.Concat(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "\\config.txt");
+
+
+            if (File.Exists(pathToConf))
+            {
+                path = File.ReadLines(string.Concat(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "\\config.txt")).First<string>();
+            }
+            else
+            {
+                Console.WriteLine("Please enter your desired download path!\nExample: C:\\Users\\Vendell\\Downloads\\Yiff\\\n");
+                File.WriteAllText(pathToConf, Console.ReadLine());
+                path = File.ReadLines(string.Concat(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "\\config.txt")).First<string>();
+            }
+
             if (args.Length != 0)
             {
                 query = string.Concat("limit=", args[0], "&tags=", args[1]);
@@ -61,6 +76,7 @@ namespace e621Downloader
                     {
                         downloadedCount++;
                         Console.Title = count + " / " + (count - downloadedCount).ToString();
+                        Console.WriteLine(post.file.url);
                         string filename = string.Concat(path, post.file.md5, ".", post.file.ext);
                         client.DownloadFile(post.file.url, filename);
                     }
@@ -71,6 +87,11 @@ namespace e621Downloader
             Console.WriteLine(string.Concat("You downloaded ", downloadedCount, " images!"));
             File.AppendAllText(string.Concat(path, "\\queries.txt"), string.Concat(new object[] { DateTime.Now, " Query: ", query, " / Downloaded: ", downloadedCount, "\n" }));
             downloadedCount = 0;
+            if (args.Length != 0)
+            {
+                Environment.Exit(0);
+                return;
+            }
             Console.WriteLine("");
             Console.WriteLine("Do you want to download more yiff?");
             Console.WriteLine("(Y/N)");
