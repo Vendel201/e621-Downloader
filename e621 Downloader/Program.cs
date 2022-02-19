@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,30 +9,19 @@ using System.Net;
 namespace e621Downloader
 {
     internal class Program
-    { 
+    {
         public static string query;
-
         public static float downloadedCount;
-
         public static WebClient client = new WebClient();
+        static Config config = new Config();
+        static Config configLocal = new Config();
 
-        public static string path;
 
         public static void Main(string[] args)
         {
             string pathToConf = string.Concat(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "\\config.txt");
 
-
-            if (File.Exists(pathToConf))
-            {
-                path = File.ReadLines(string.Concat(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "\\config.txt")).First<string>();
-            }
-            else
-            {
-                Console.WriteLine("Please enter your desired download path!\nExample: C:\\Users\\Vendell\\Downloads\\Yiff\\\n");
-                File.WriteAllText(pathToConf, Console.ReadLine());
-                path = File.ReadLines(string.Concat(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "\\config.txt")).First<string>();
-            }
+            configLocal = config.getConfiguration(pathToConf);
 
             if (args.Length != 0)
             {
@@ -56,7 +44,7 @@ namespace e621Downloader
             }
 
             Console.WriteLine("");
-            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(string.Concat("https://e621.net/posts.json?", query, "&login=Vendell&api_key=AadndrowG4dy4SoJFjpPGxdc"));
+            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(string.Concat("https://e621.net/posts.json?", query, "&login=", configLocal.login, "&api_key=", configLocal.api));
             httpWebRequest.UserAgent = "Vendell / e621 Bulk Downloader";
             httpWebRequest.Method = "GET";
             using (WebResponse response = httpWebRequest.GetResponse())
@@ -77,7 +65,7 @@ namespace e621Downloader
                         downloadedCount++;
                         Console.Title = count + " / " + (count - downloadedCount).ToString();
                         Console.WriteLine(post.file.url);
-                        string filename = string.Concat(path, post.file.md5, ".", post.file.ext);
+                        string filename = string.Concat(configLocal.path, post.file.md5, ".", post.file.ext);
                         client.DownloadFile(post.file.url, filename);
                     }
                 }
@@ -85,7 +73,7 @@ namespace e621Downloader
 
             Console.Title = "E621 Bulk Downloader";
             Console.WriteLine(string.Concat("You downloaded ", downloadedCount, " images!"));
-            File.AppendAllText(string.Concat(path, "\\queries.txt"), string.Concat(new object[] { DateTime.Now, " Query: ", query, " / Downloaded: ", downloadedCount, "\n" }));
+            File.AppendAllText(string.Concat(configLocal.path, "\\queries.txt"), string.Concat(new object[] { DateTime.Now, " Query: ", query, " / Downloaded: ", downloadedCount, "\n" }));
             downloadedCount = 0;
             if (args.Length != 0)
             {
