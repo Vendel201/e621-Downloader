@@ -62,11 +62,21 @@ namespace e621Downloader
 
                     foreach (var post in objects.posts)
                     {
-                        downloadedCount++;
-                        Console.Title = count + " / " + (count - downloadedCount).ToString();
-                        Console.WriteLine(post.file.url);
-                        string filename = string.Concat(configLocal.path, post.file.md5, ".", post.file.ext);
-                        client.DownloadFile(post.file.url, filename);
+                        string[] allTags = post.tags.general.Concat(post.tags.species)
+                                                            .Concat(post.tags.character)
+                                                            .Concat(post.tags.copyright)
+                                                            .Concat(post.tags.artist)
+                                                            .Concat(post.tags.meta)
+                                                            .ToArray();
+
+                        if (allTags.Intersect(configLocal.blacklist).Count() == 0 && post.file.url != null)
+                        {
+                            downloadedCount++;
+                            Console.Title = count + " / " + (count - downloadedCount).ToString();
+                            Console.WriteLine(post.file.url);
+                            string filename = string.Concat(configLocal.path, post.file.md5, ".", post.file.ext);
+                            client.DownloadFile(post.file.url, filename);
+                        }
                     }
                 }
             }

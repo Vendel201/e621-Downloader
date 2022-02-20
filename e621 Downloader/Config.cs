@@ -9,6 +9,7 @@ namespace e621Downloader
         public string path { get; set; }
         public string login { get; set; }
         public string api { get; set; }
+        public string[] blacklist { get; set; }
 
         public Config getConfiguration(string confPath)
         {
@@ -26,7 +27,8 @@ namespace e621Downloader
                 config.login = Console.ReadLine();
                 Console.WriteLine("Please enter your e621 API Key: ");
                 config.api = Console.ReadLine();
-                File.WriteAllText(confPath, JsonConvert.SerializeObject(config));
+                config.blacklist = new string[] {""};
+                File.WriteAllText(confPath, JsonConvert.SerializeObject(config, Formatting.Indented));
             }
 
             return config;
