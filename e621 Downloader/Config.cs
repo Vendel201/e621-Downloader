@@ -1,6 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 using System.IO;
+using System.Linq;
 
 namespace e621Downloader
 {
@@ -20,13 +21,34 @@ namespace e621Downloader
             }
             else
             {
-                Console.WriteLine("Please enter your desired download path!\nExample: C:\\Users\\Vendell\\Downloads\\Yiff\\\n");
-                config.path = Console.ReadLine();
-                Console.WriteLine("If you wish to be logged into the e621 API, please enter your credentials. If not, ignore the next two entries.");
+                bool validPath = false;
+                do
+                {
+                    Console.WriteLine("Please enter your desired download path!\nExample: C:\\Users\\Vendell\\Downloads\\Yiff\\\n");
+                    string pathInput = Console.ReadLine();
+                    if (!pathInput.EndsWith("\\"))
+                    {
+                        pathInput = pathInput + "\\";
+                    }
+                    if (!Directory.Exists(pathInput) || pathInput == "\\")
+                    {
+                        Console.WriteLine("Please enter a valid Path!");
+                    }
+                    else
+                    {
+                        validPath = true;
+                        config.path = pathInput;
+                    }
+                } while (!validPath);
+
+                Console.WriteLine("If you wish to be logged into the e621 API, please enter your credentials. If not, leave empty.");
                 Console.WriteLine("Please enter your e621 Username: ");
                 config.login = Console.ReadLine();
-                Console.WriteLine("Please enter your e621 API Key: ");
-                config.api = Console.ReadLine();
+                if (config.login != "")
+                {
+                    Console.WriteLine("Please enter your e621 API Key: ");
+                    config.api = Console.ReadLine();
+                }
                 config.blacklist = new string[] {""};
                 File.WriteAllText(confPath, JsonConvert.SerializeObject(config, Formatting.Indented));
             }

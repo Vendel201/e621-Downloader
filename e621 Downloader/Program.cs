@@ -19,7 +19,7 @@ namespace e621Downloader
 
         public static void Main(string[] args)
         {
-            string pathToConf = string.Concat(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "\\config.txt");
+            string pathToConf = string.Concat(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "\\config.json");
 
             configLocal = config.getConfiguration(pathToConf);
 
